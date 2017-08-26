@@ -1,0 +1,198 @@
+PHP and Wordpress :
+ Step 1 : index.php file
+	<?php get_header(); ?>
+
+
+	<?php if ( have_posts() ) : while ( have_posts() ) : the_post(); ?>
+	  	<?php the_content(); ?>
+
+	<?php endwhile; else: ?>
+		<p><?php _e('Sorry, this page does not exist.'); ?></p>
+	<?php endif; ?>
+
+
+	<?php get_footer(); ?>
+
+Step 2:  header.php file
+	Write your Header code part here only.
+
+	Note :<?php wp_enqueue_script("jquery"); ?>  this line is use to connect jquery files
+	Note:  <?php wp_head(); ?> this line is used to link links from theme header
+
+Step 3: footer.php file
+	Write Your Footer code part here.
+
+	Note: The below line is used to show your Wordpress Menu in your Web page
+	<?php echo  wp_nav_menu( array('menu'=>'footer') );?>
+	In the above line 'footer' is our menu name.created in wordpress.
+
+Step 4: functions.php file
+
+	Include other files here which make Our page Dynamic.Refer step 5)
+
+and write the below code to connect our script file and bootstrap files  with wordpress
+<?php 
+
+include_once('theme_option.php');
+
+function wpbootstrap_scripts_with_jquery()
+{
+	// Register the script like this for a theme:
+	wp_register_script( 'custom-script', get_template_directory_uri() . '/bootstrap/js/bootstrap.js', array( 'jquery' ) );
+	// For either a plugin or a theme, you can then enqueue the script:
+	wp_enqueue_script( 'custom-script' );
+}
+add_action( 'wp_enqueue_scripts', 'wpbootstrap_scripts_with_jquery' );
+
+
+if ( function_exists('register_sidebar') )
+	register_sidebar(array(
+		'before_widget' => '',
+		'after_widget' => '',
+		'before_title' => '<h3>',
+		'after_title' => '</h3>',
+	));
+
+   
+function add_custom_script() {
+    wp_register_script('custom_script1', home_url() . '/wp-content/themes/wpbootstrap/custom_script.js', array( 'jquery' ));
+    wp_enqueue_script('custom_script1');
+}  
+add_action( 'wp_enqueue_scripts', 'add_custom_script' );
+  
+
+?>
+
+Step 5 : create theme_option.php file for dynamic data editing and from admin panel
+Write down the whole code and edit the nacessary code
+
+<?php 
+
+////////////////Theme option for social link////////////
+function theme_settings_page()
+{
+    ?>
+	    <div class="wrap">
+	    <h1>Theme Panel</h1>
+	    <form method="post" action="options.php">
+	        <?php
+	            settings_fields("section");
+	            do_settings_sections("theme-options");      
+	            submit_button(); 
+	        ?>          
+	    </form>
+		</div>
+	<?php
+}
+
+function add_theme_menu_item()
+{
+	add_menu_page("Theme Panel", "Theme Panel", "manage_options", "theme-panel", "theme_settings_page", null, 99);
+}
+
+add_action("admin_menu", "add_theme_menu_item");
+
+function side_menu_head_tel_no(){echo '<input type="text" name="tel_no" id="tel_no" value="'. get_option('tel_no').'" style="width:100%"/>';}
+function display_twitter_element(){echo '<input type="text" name="twitter_url" id="twitter_url" value="'. get_option('twitter_url').'" style="width:100%"/>';}
+function display_facebook_element(){ echo '<input type="text" name="facebook_url" id="facebook_url" value="'. get_option('facebook_url').'" style="width:100%"/>';}
+function display_googleplus_element(){ echo '<input type="text" name="googleplus_url" id="googleplus_url" value="'.get_option('googleplus_url').'" style="width:100%"/>';}
+function display_whatsapp_element(){ echo '<input type="text" name="whatsapp_url" id="whatsapp_url" value="'. get_option('whatsapp_url').'" style="width:100%"/>'; }
+function display_linkedIn_element(){ echo '<input type="text" name="linkedIn_url" id="linkedIn_url" value="'. get_option('linkedIn_url').'" style="width:100%"/>'; }
+function display_footerlogo_element(){ echo '<input type="text" name="footerlogo_url" id="footerlogo_url" value="'. get_option('footerlogo_url').'" style="width:100%"/>';}
+function display_headerlogo_element(){ echo '<input type="text" name="headerlogo_url" id="headerlogo_url" value="'. get_option('headerlogo_url').'" style="width:100%"/>';}
+
+function display_theme_panel_fields()
+{
+	add_settings_section("section", "All Settings", null, "theme-options");
+    
+	add_settings_field("tel_no", "Telephone No.", "side_menu_head_tel_no", "theme-options", "section");
+	add_settings_field("twitter_url", "Twitter Profile Url", "display_twitter_element", "theme-options", "section");
+    add_settings_field("facebook_url", "Facebook Profile Url", "display_facebook_element", "theme-options", "section");
+    add_settings_field("googleplus_url", "Google Profile Url", "display_googleplus_element", "theme-options", "section");
+    add_settings_field("linkedIn_url", "LinkedIn Profile Url", "display_linkedIn_element", "theme-options", "section");
+    add_settings_field("whatsapp_url", "WhatsApp Url", "display_whatsapp_element", "theme-options", "section");
+    add_settings_field("footerlogo_url", "Footer Logo Url", "display_footerlogo_element", "theme-options", "section");
+    add_settings_field("headerlogo_url", "Header Logo Url", "display_headerlogo_element", "theme-options", "section");
+    
+    register_setting("section", "tel_no");
+    register_setting("section", "twitter_url");
+    register_setting("section", "facebook_url");
+    register_setting("section", "googleplus_url");
+    register_setting("section", "linkedIn_url");
+    register_setting("section", "whatsapp_url");
+    register_setting("section", "footerlogo_url");
+    register_setting("section", "headerlogo_url");
+}
+
+add_action("admin_init", "display_theme_panel_fields");
+
+
+?>
+
+the above code is used to make page dynamic and editable from admin panel. It will create a sub menu in wordpress menu from where you can edit web page from admin panel and write that name in your code where you want dynamicness.
+e.g.
+ <?php if(get_option('tel_no')){?>
+<?php echo  get_option('tel_no'); ?><?php }?>
+to conect this file refer step 4.
+
+
+Step 6: front-page.php file 
+This file contains our whole front page code in between these two codes
+
+<?php get_header(); ?>
+<?php 
+
+if ( have_posts() ) : while ( have_posts() ) : the_post(); 
+?>
+
+//our code comes here
+
+
+<?php endwhile;  endif; ?>
+
+<?php get_footer(); ?>
+
+Note: To make any part of the page editable from admin panel use Add Custom fields plugin and create your data in admin panel and write the below code to display that in our web page
+
+<?php if(get_field('ban_title')){?>
+<?php echo get_field('ban_title'); ?><?php }?>
+e.g. 
+ <?php if(get_field('ban_title')){?>
+                    <h3>
+                        <?php echo get_field('ban_title'); ?>
+                    </h3>
+
+Note: If we have same data for the page in different blocks than we use Repeaters in plugin and use the below code for that to display the data in our web page.
+
+<?php
+		// check if the repeater field has rows of data
+		if( have_rows('concept_block') ):
+
+		// loop through the rows of data
+		while ( have_rows('concept_block') ) : the_row();
+
+		// display a sub field value
+		//the_sub_field('con_title');
+		       ?>
+		//write your repeatable code here in betwen this code
+
+		<?php 
+                endwhile;
+                else :
+                // no rows found
+                endif;
+                 ?>
+
+	Note: 'concept_block' is the name which we create in our repeater plugin for repeatation.
+
+The above code will form a loop for our repeated data.
+
+The below code is used to display our data which we created in our plugins.
+ <?php if(get_sub_field('con_title_image')){?>
+<?php the_sub_field('con_title_image'); ?>">
+                            <?php }?>
+Note: the name which is given in circular braces is that name which we have given while writting our dynamic data.
+
+Step 7 : style.css
+
+Write your css styling here.
